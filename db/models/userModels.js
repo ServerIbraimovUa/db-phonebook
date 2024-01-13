@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 const userSchema = new Schema(
   {
@@ -28,8 +28,12 @@ const userSchema = new Schema(
 );
 
 userSchema.methods.hashPassword = async function () {
-    this.password = await bcrypt.hash(this.password, 10);
-}
+  this.password = await bcrypt.hash(this.password, 10);
+};
+
+userSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 const User = model("user", userSchema);
 
