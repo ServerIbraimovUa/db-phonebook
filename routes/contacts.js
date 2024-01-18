@@ -7,13 +7,14 @@ const {
 const { contactsSchema } = require("../schemas/contactsSchemas");
 const validateBody = require("../decorators/validateBody");
 const isValidId = require("../middlewares/isValidId");
+const authenticate = require("../middlewares/authenticate");
 
 const router = express.Router();
 
-router.get("/", getContacts);
+router.get("/", authenticate, getContacts);
 
-router.post("/", validateBody(contactsSchema), addContact);
+router.post("/", authenticate, validateBody(contactsSchema), addContact);
 
-router.delete("/:contactId", isValidId, deleteContactById);
+router.delete("/:contactId", authenticate, isValidId, deleteContactById);
 
 module.exports = router;

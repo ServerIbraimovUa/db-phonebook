@@ -1,9 +1,10 @@
 const User = require("../db/models/userModels");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
-
+const path = require("path");
+const fs = require("fs/promises");
 const { SECRET_KEY } = process.env;
-
+const pathAvatar = path.join(__dirname, "../public/avatars");
 const register = async (req, res) => {
   const { name, email } = req.body;
   const user = await User.findOne({ email });
@@ -69,10 +70,30 @@ const current = (req, res) => {
   const { name, email, avatar } = req.user;
   res.json({ name, email, avatar });
 };
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  if (!req.file) {
+    res.status(400).json({ message: "no file attached" });
+    return;
+  }
+  const { path: tempUpload, originalname } = req.file;
+  const fileName = `${_id}${originalname}`;
 
+  const result = path.join(pathAvatar, fileName);
+  await fs.rename(tempUpload, result);
+
+  const avatar = path.join("avatars", fileName);
+
+  await User.findByIdAndUpdate(_id, { avatar });
+
+  res.json({
+    avatar,
+  });
+};
 module.exports = {
   register,
   login,
   logout,
-  current
+  current,
+  updateAvatar,
 };
